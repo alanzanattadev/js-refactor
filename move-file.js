@@ -1,68 +1,44 @@
-import path from 'path';
+import {getFullPathInfosDefaults, addOldLocationDetails, addNewLocationDetails} from './pathInfos';
 
-// Press ctrl+space for code completion
+function logChange(infos, changed) {
+  console.log(`
+    =================================================
+    Import ${changed ? '' : 'not'} changed in ${infos.transformedFile.absolutePath}
+      ${infos.transformedFile.oldImportDeclaration.rawSourcePath} -> ${infos.transformedFile.newImportDeclaration.cleanSourcePath}
+      ----
+      < -> ${infos.transformedFile.oldImportDeclaration.source}
+      ${changed ? `> => ${infos.transformedFile.newImportDeclaration.source}` : ''}
+      ----
+      searched source path: ${infos.movedFile.oldLocation.relativeToTransformedPathClean}
+      clean source path: ${infos.transformedFile.oldImportDeclaration.cleanSourcePath}
+      ${changed ? `new source path: ${infos.transformedFile.newImportDeclaration.cleanSourcePath}` : ''}
+    =================================================
+  `);
+}
+
 export default function transformer(file, api, options) {
   const j = api.jscodeshift;
-
-  function getCleanPath(p) {
-    let pathDetails = path.parse(p);
-    let pathNameWithoutExt = path.parse(pathDetails.name).name;
-    let pathWithoutExt = `${pathDetails.dir}${pathNameWithoutExt == 'index' ? '' : `/${pathNameWithoutExt}`}`;
-    return pathWithoutExt;
-  }
-
-  function getTargetPath(filePath, modulePath, external) {
-    if (external) {
-      return getCleanPath(`${external}${modulePath.substr(1)}`); // 1 = '.'
-    } else {
-      return getCleanPath(`${path.relative(file.path, modulePath)}`.substr(3)); // 3 = '../'
-    }
-  }
-
-  function getPathWithoutModule(p, moduleName) {
-    return p.substr(2 + (moduleName ? moduleName.length + 3 : 0)); // 3 = '/./'
-  }
 
   return j(file.source)
     .find(j.ImportDeclaration)
     .forEach(importNode => {
-      let oldSourcePath = j(importNode).get("source").getValueProperty("value");
-      let oldImportString = j(importNode).toSource();
-      let targetSourcePath = getTargetPath(file.path, options.fromPath, options.moduleName);
-      let oldSourcePathWithoutExt = getCleanPath(oldSourcePath);
-      if (oldSourcePathWithoutExt == targetSourcePath) {
-        let newSourcePath = path.extname(options.toPath) == '' ?
-                              getCleanPath(options.toPath + path.basename(options.fromPath)) :
-                              options.toPath;
-        let newTargetSourcePath = getTargetPath(file.path, newSourcePath, options.moduleName);
-        let newDeclaration = j.importDeclaration(importNode.getValueProperty('specifiers'), j.literal(newTargetSourcePath));
-        j(importNode).replaceWith(newDeclaration);
-        let newImportString = j(newDeclaration).toSource();
-        console.log(`
-          =================================================
-          Import changed in ${file.path}
-            ${oldSourcePath} -> ${newSourcePath}
-            ----
-            < -> ${oldImportString}
-            > => ${newImportString}
-            ----
-            targetSourcePath: ${targetSourcePath}
-            oldSourcePathWithoutExt: ${oldSourcePathWithoutExt}
-            newSourcePath: ${newSourcePath}
-          =================================================
-          `);
+      let infos = getFullPathInfosDefaults();
+      addOldLocationDetails(infos, j, {
+        oldDeclarationNode: importNode,
+        transformedFileModuleName: options.currentModuleName,
+        filePath: file.path
+      }, {
+        oldRelativeToCwdMovedFilePath: options.fromPath,
+        movedFileModuleName: options.moduleName
+      });
+      if (infos.transformedFile.oldImportDeclaration.cleanSourcePath == infos.movedFile.oldLocation.relativeToTransformedPathClean) {
+        addNewLocationDetails(infos, j, {newRelativeToCwdMovedFilePath: options.toPath});
+        j(importNode).replaceWith(infos.transformedFile.newImportDeclaration.node);
+        logChange(infos, true);
+      } else if (file.path == infos.movedFile.oldLocation.absolutePath) {
+        logChange(infos, false);
       } else {
-        console.log(`
-          =================================================
-          Import not changed in ${file.path}
-            ${oldSourcePath}
-            ----
-            < -> ${oldImportString}
-            ----
-            targetSourcePath: ${targetSourcePath}
-            oldSourcePathWithoutExt: ${oldSourcePathWithoutExt}
-          =================================================
-          `);
+        logChange(infos, false)
       }
     })
     .toSource();
