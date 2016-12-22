@@ -2,6 +2,12 @@
 
 Some scripts and codemods to quickly reorganize your javascript.
 
+## Install
+
+```sudo yarn global add alanzanattadev/js-refactor```
+or
+```sudo npm install -g alanzanattadev/js-refactor```
+
 ## move-js-file
 
 Easily move a js file (.js, .native.js, .web.js ...) without rewriting manually every imports.
