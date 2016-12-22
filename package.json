@@ -1,0 +1,12 @@
+{
+  "name": "js-refactor",
+  "version": "1.0.0",
+  "description": "Rapid js refactoring with jscodeshift",
+  "main": "index.js",
+  "repository": "git@github.com:alanzanattadev/js-refactor.git",
+  "author": "alanzanattadev <alan.zanatta@outlook.com>",
+  "license": "MIT",
+  "dependencies": {
+    "jscodeshift": "^0.3.30"
+  }
+}
