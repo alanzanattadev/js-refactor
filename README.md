@@ -7,6 +7,8 @@ Some scripts and codemods to quickly reorganize your javascript.
 Easily move a js file (.js, .native.js, .web.js ...) without rewriting manually every imports.
 You'll be able to refactor modules that use your modified module as well.
 
+IT DOESN'T MOVE YOUR FILE, ONLY REWRITE IMPORTS, but it displays a possible command to run to move your file. It's done like that because it depends on VCS you use.
+
 - cd into your js module
 - ```move-file-js [relative path to the file to move] [relative path to the new location] [current module name] [paths to modules using this one]```
 eg:
