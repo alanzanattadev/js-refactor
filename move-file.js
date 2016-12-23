@@ -1,4 +1,4 @@
-import {getFullPathInfosDefaults, addOldLocationDetails, addNewLocationDetails} from './pathInfos';
+import {getFullPathInfosDefaults, addOldLocationDetails, addNewLocationDetails, addNewLocationDetailsOfImport} from './pathInfos';
 
 function logChange(infos, changed) {
   console.log(`
@@ -35,8 +35,11 @@ export default function transformer(file, api, options) {
         addNewLocationDetails(infos, j, {newRelativeToCwdMovedFilePath: options.toPath});
         j(importNode).replaceWith(infos.transformedFile.newImportDeclaration.node);
         logChange(infos, true);
-      } else if (file.path == infos.movedFile.oldLocation.absolutePath) {
-        logChange(infos, false);
+      } else if (infos.transformedFile.absolutePath == infos.movedFile.oldLocation.absolutePath && infos.transformedFile.oldImportDeclaration.rawSourcePath.startsWith('.')) {
+        addNewLocationDetailsOfImport(infos, j, {newRelativeToCwdMovedFilePath: options.toPath});
+        j(importNode).replaceWith(infos.transformedFile.newImportDeclaration.node);
+        console.log(infos.transformedFile.absolutePath, infos.transformedFile.oldImportDeclaration.absolutePath);
+        logChange(infos, true);
       } else {
         logChange(infos, false)
       }
