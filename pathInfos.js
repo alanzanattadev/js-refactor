@@ -3,9 +3,13 @@ var path = require('path');
 
 function getCleanPath(p) {
   let pathDetails = path.parse(p);
-  let pathNameWithoutExt = path.parse(pathDetails.name).name;
-  let pathWithoutExt = `${pathDetails.dir}${pathNameWithoutExt == 'index' ? '' : `/${pathNameWithoutExt}`}`;
-  return pathWithoutExt;
+  if (['.css', '.jpg', '.jpeg', '.png', '.svg', '.json'].find(extension => extension == pathDetails.ext) === undefined) {
+    let pathNameWithoutExt = path.parse(pathDetails.name).name;
+    let pathWithoutExt = `${pathDetails.dir}${pathNameWithoutExt == 'index' ? '' : `/${pathNameWithoutExt}`}`;
+    return pathWithoutExt;
+  } else {
+    return p;
+  }
 }
 
 function getRelativePath(p1, p2) {
