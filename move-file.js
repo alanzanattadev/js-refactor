@@ -1,4 +1,6 @@
-import {getFullPathInfosDefaults, addOldLocationDetails, addNewLocationDetails, addNewLocationDetailsOfImport} from './pathInfos';
+'use babel'
+// @flow
+var {getFullPathInfosDefaults, addOldLocationDetails, addNewLocationDetails, addNewLocationDetailsOfImport} = require('./pathInfos');
 
 function logChange(infos, changed) {
   console.log(`
@@ -16,7 +18,7 @@ function logChange(infos, changed) {
   `);
 }
 
-export default function transformer(file, api, options) {
+module.exports = function transformer(file, api, options) {
   const j = api.jscodeshift;
 
   return j(file.source)

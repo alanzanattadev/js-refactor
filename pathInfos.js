@@ -1,14 +1,14 @@
 
-import path from 'path';
+var path = require('path');
 
-export function getCleanPath(p) {
+function getCleanPath(p) {
   let pathDetails = path.parse(p);
   let pathNameWithoutExt = path.parse(pathDetails.name).name;
   let pathWithoutExt = `${pathDetails.dir}${pathNameWithoutExt == 'index' ? '' : `/${pathNameWithoutExt}`}`;
   return pathWithoutExt;
 }
 
-export function getRelativePath(p1, p2) {
+function getRelativePath(p1, p2) {
   let result = `${path.relative(path.parse(p1).dir, p2)}`;
   if (result.startsWith('.'))
     return result;
@@ -16,7 +16,7 @@ export function getRelativePath(p1, p2) {
     return './' + result;
 }
 
-export function getTargetPath(filePath, modulePath, external) {
+function getTargetPath(filePath, modulePath, external) {
   if (external) {
     return getCleanPath(path.join(external, modulePath));
   } else {
@@ -24,11 +24,11 @@ export function getTargetPath(filePath, modulePath, external) {
   }
 }
 
-export function getAbsolutePathOfRelativeToCwd(p: string) {
+function getAbsolutePathOfRelativeToCwd(p) {
   return path.resolve(process.cwd(), p);
 }
 
-export function getFullPathInfosDefaults() {
+function getFullPathInfosDefaults() {
   return {
     transformedFile: {
       oldImportDeclaration: {
@@ -70,7 +70,7 @@ export function getFullPathInfosDefaults() {
   };
 };
 
-export function addOldLocationDetails(
+function addOldLocationDetails(
   infos,
   j,
   {oldDeclarationNode, transformedFileModuleName, filePath},
@@ -94,7 +94,7 @@ export function addOldLocationDetails(
 
 }
 
-export function addNewLocationDetails(infos, j, {newRelativeToCwdMovedFilePath}) {
+function addNewLocationDetails(infos, j, {newRelativeToCwdMovedFilePath}) {
 
   infos.movedFile.newLocation.directory = path.extname(newRelativeToCwdMovedFilePath) == '';
   infos.movedFile.newLocation.relativeToCwdPath = path.join(newRelativeToCwdMovedFilePath, (infos.movedFile.newLocation.directory ? path.basename(infos.movedFile.oldLocation.relativeToCwdPath) : ''));
@@ -117,7 +117,7 @@ export function addNewLocationDetails(infos, j, {newRelativeToCwdMovedFilePath})
 
 }
 
-export function addNewLocationDetailsOfImport(infos, j, {newRelativeToCwdMovedFilePath}) {
+function addNewLocationDetailsOfImport(infos, j, {newRelativeToCwdMovedFilePath}) {
   infos.movedFile.newLocation.directory = path.extname(newRelativeToCwdMovedFilePath) == '';
   infos.movedFile.newLocation.relativeToCwdPath = newRelativeToCwdMovedFilePath + (infos.movedFile.newLocation.directory ? path.basename(infos.movedFile.oldLocation.relativeToCwdPath) : '');
   infos.movedFile.newLocation.absolutePath = getAbsolutePathOfRelativeToCwd(infos.movedFile.newLocation.relativeToCwdPath);
@@ -142,3 +142,14 @@ export function addNewLocationDetailsOfImport(infos, j, {newRelativeToCwdMovedFi
                                                                           j.literal(infos.transformedFile.newImportDeclaration.cleanSourcePath));
   infos.transformedFile.newImportDeclaration.source = j(infos.transformedFile.newImportDeclaration.node).toSource();
 }
+
+module.exports = {
+  getCleanPath,
+  getRelativePath,
+  getTargetPath,
+  getAbsolutePathOfRelativeToCwd,
+  getFullPathInfosDefaults,
+  addOldLocationDetails,
+  addNewLocationDetails,
+  addNewLocationDetailsOfImport,
+};
