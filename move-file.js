@@ -37,7 +37,7 @@ module.exports = function transformer(file, api, options) {
         addNewLocationDetails(infos, j, {newRelativeToCwdMovedFilePath: options.toPath});
         j(importNode).replaceWith(infos.transformedFile.newImportDeclaration.node);
         logChange(infos, true);
-      } else if (infos.transformedFile.absolutePath == infos.movedFile.oldLocation.absolutePath && infos.transformedFile.oldImportDeclaration.rawSourcePath.startsWith('.')) {
+      } else if (options.currentModuleName && infos.transformedFile.absolutePath == infos.movedFile.oldLocation.absolutePath && infos.transformedFile.oldImportDeclaration.rawSourcePath.startsWith('.')) {
         addNewLocationDetailsOfImport(infos, j, {newRelativeToCwdMovedFilePath: options.toPath});
         j(importNode).replaceWith(infos.transformedFile.newImportDeclaration.node);
         console.log(infos.transformedFile.absolutePath, infos.transformedFile.oldImportDeclaration.absolutePath);

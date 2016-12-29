@@ -9,7 +9,13 @@
   "dependencies": {
     "jscodeshift": "^0.3.30"
   },
+  "scripts": {
+    "tdd": "jest --watch"
+  },
   "bin": {
     "move-file-js": "./move-js-file"
+  },
+  "devDependencies": {
+    "jest": "^18.1.0"
   }
 }
