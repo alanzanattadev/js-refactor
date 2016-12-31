@@ -6,6 +6,6 @@ PROJECT_APPS=${*:4}
 JSREFACTOR_DIR="$(dirname "$(readlink -f "$0")")"
 TRANSFORMER_PATH="$JSREFACTOR_DIR/move-file.js"
 
-jscodeshift -t "$TRANSFORMER_PATH" ./ --fromPath="$FROM_PATH" --toPath="$TO_PATH" --currentModuleName="$MODULE_NAME" &&
-jscodeshift -t "$TRANSFORMER_PATH" $PROJECT_APPS --moduleName="$MODULE_NAME" --fromPath="$FROM_PATH" --toPath="$TO_PATH"
+jscodeshift -t "$TRANSFORMER_PATH" ./ --fromPath="$FROM_PATH" --toPath="$TO_PATH" --currentModuleName="$MODULE_NAME" --parser=flow &&
+jscodeshift -t "$TRANSFORMER_PATH" $PROJECT_APPS --moduleName="$MODULE_NAME" --fromPath="$FROM_PATH" --toPath="$TO_PATH" --parser=flow
 echo "git mv $FROM_PATH $TO_PATH"
